@@ -1,0 +1,36 @@
+log:
+  level: error
+
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+accessLog:
+  filePath: "/var/log/traefik/traefik.log"
+  bufferingSize: 100
+  filters:
+    statusCodes:
+      - "200-530"
+
+providers:
+  docker:
+    exposedByDefault: false
+    httpClientTimeout: "300"
+    endpoint: "unix:///var/run/docker.sock"
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+  http3:
+    address: ":443/udp"
+  traefik:
+    address: ":8080"
+
+api:
+  dashboard: true
+  insecure: true
+
+experimental:
+  http3: true

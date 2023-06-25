@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  backend:
+    image: test-backend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - 3000:3000/tcp
+    restart: unless-stopped
+    container_name: wireguard-frontend
+  traefik:
+    image: test-traefik:latest
+    build:
+      context: ./traefik
+      dockerfile: Dockerfile
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TZ=Asia/Seoul
+      - SESSIONSECRET=testing
+      - SERVERURL=127.0.0.1 #Must setting
+      - SERVERPORT=51820 #Optional default 51820
+    volumes:
+      - /etc/wireguard/server_conf/:/etc/wireguard
+      - /etc/wireguard/user_conf:/backend_conf
+    ports:
+      - 51820:51820/udp
+      - 8000:8000/tcp
+    restart: unless-stopped
+    container_name: wireguard-backend
